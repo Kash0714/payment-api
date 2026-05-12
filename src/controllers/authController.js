@@ -41,7 +41,8 @@ async function loginUser(req, res) {
       },
     }, "Login successful");
   } catch (err) {
-    return error(res, "Login failed", 500);
+    console.error("Login error:", err.message, err.stack);
+    return error(res, err.message || "Login failed", 500);
   }
 }
 
