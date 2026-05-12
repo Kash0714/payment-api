@@ -44,6 +44,3 @@ npm test
 
 ## 📖 API Documentation
 Detailed API reference can be found in the code or tested using the included test suite. All protected routes require a `Bearer` token in the `Authorization` header.
-
----
-Built with ❤️ for secure payments.
