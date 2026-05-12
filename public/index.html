@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LeadMax Pay</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a24;
+    --border: #2a2a3a;
+    --accent: #7c6fff;
+    --accent2: #ff6b9d;
+    --green: #00e5a0;
+    --red: #ff4d6a;
+    --text: #f0f0f8;
+    --muted: #6b6b8a;
+    --font: 'Syne', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    min-height: 100vh;
+    display: flex;
+    overflow-x: hidden;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 240px;
+    min-height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0;
+    z-index: 100;
+  }
+  .logo {
+    padding: 28px 24px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo-mark {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+  .logo-mark span { color: var(--accent); }
+  .logo-sub { font-size: 10px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; font-family: var(--mono); }
+
+  .nav { flex: 1; padding: 16px 12px; }
+  .nav-section { margin-bottom: 24px; }
+  .nav-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); padding: 0 12px; margin-bottom: 8px; font-family: var(--mono); }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    transition: all 0.15s;
+    border: 1px solid transparent;
+  }
+  .nav-item:hover { color: var(--text); background: var(--surface2); }
+  .nav-item.active { color: var(--accent); background: rgba(124,111,255,0.1); border-color: rgba(124,111,255,0.2); }
+  .nav-item .icon { font-size: 15px; width: 18px; text-align: center; }
+
+  .auth-badge {
+    margin: 12px;
+    padding: 10px 12px;
+    background: var(--surface2);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 11px;
+    font-family: var(--mono);
+  }
+  .auth-badge .label { color: var(--muted); margin-bottom: 4px; }
+  .auth-badge .value { color: var(--green); word-break: break-all; font-size: 10px; }
+  .auth-badge .no-auth { color: var(--red); }
+
+  /* Main */
+  .main {
+    margin-left: 240px;
+    flex: 1;
+    padding: 40px;
+    max-width: calc(100vw - 240px);
+  }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .page-header { margin-bottom: 32px; }
+  .page-title { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+  .page-subtitle { color: var(--muted); font-size: 13px; margin-top: 6px; font-family: var(--mono); }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    font-family: var(--mono);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-title::before { content: ''; width: 3px; height: 14px; background: var(--accent); border-radius: 2px; display: block; }
+
+  /* Grid */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+  /* Form */
+  .form-group { margin-bottom: 16px; }
+  .form-label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 6px; font-family: var(--mono); }
+  .form-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    transition: border-color 0.15s;
+    outline: none;
+  }
+  .form-input:focus { border-color: var(--accent); }
+  .form-input::placeholder { color: var(--muted); }
+  select.form-input { cursor: pointer; }
+
+  /* Buttons */
+  .btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: #6a5eff; transform: translateY(-1px); }
+  .btn-danger { background: rgba(255,77,106,0.15); color: var(--red); border: 1px solid rgba(255,77,106,0.3); }
+  .btn-danger:hover { background: rgba(255,77,106,0.25); }
+  .btn-success { background: rgba(0,229,160,0.15); color: var(--green); border: 1px solid rgba(0,229,160,0.3); }
+  .btn-success:hover { background: rgba(0,229,160,0.25); }
+  .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+  /* Response box */
+  .response-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.6;
+    max-height: 280px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    margin-top: 16px;
+  }
+  .response-box.success { border-color: rgba(0,229,160,0.3); color: var(--green); }
+  .response-box.error { border-color: rgba(255,77,106,0.3); color: var(--red); }
+
+  /* Stats */
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .stat-card.purple::before { background: var(--accent); }
+  .stat-card.pink::before { background: var(--accent2); }
+  .stat-card.green::before { background: var(--green); }
+  .stat-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-family: var(--mono); margin-bottom: 8px; }
+  .stat-value { font-size: 32px; font-weight: 800; letter-spacing: -1px; }
+  .stat-value.purple { color: var(--accent); }
+  .stat-value.pink { color: var(--accent2); }
+  .stat-value.green { color: var(--green); }
+
+  /* Table */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 10px 12px; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); font-family: var(--mono); font-weight: 500; }
+  td { padding: 12px; border-bottom: 1px solid rgba(42,42,58,0.5); color: var(--text); font-family: var(--mono); font-size: 12px; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(124,111,255,0.03); }
+
+  /* Badge */
+  .badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    font-family: var(--mono);
+  }
+  .badge-success { background: rgba(0,229,160,0.15); color: var(--green); }
+  .badge-failed { background: rgba(255,77,106,0.15); color: var(--red); }
+  .badge-info { background: rgba(124,111,255,0.15); color: var(--accent); }
+
+  /* Toast */
+  #toast {
+    position: fixed; bottom: 24px; right: 24px;
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-family: var(--mono);
+    z-index: 9999;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(.34,1.56,.64,1);
+    max-width: 360px;
+    border: 1px solid;
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+  #toast.success { background: rgba(0,229,160,0.1); border-color: rgba(0,229,160,0.3); color: var(--green); }
+  #toast.error { background: rgba(255,77,106,0.1); border-color: rgba(255,77,106,0.3); color: var(--red); }
+
+  /* Empty state */
+  .empty { text-align: center; padding: 40px; color: var(--muted); font-family: var(--mono); font-size: 13px; }
+  .empty .icon { font-size: 32px; margin-bottom: 12px; opacity: 0.4; }
+
+  /* Divider */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+
+  .flex { display: flex; }
+  .gap-2 { gap: 8px; }
+  .gap-3 { gap: 12px; }
+  .items-center { align-items: center; }
+  .justify-between { justify-content: space-between; }
+  .mt-2 { margin-top: 8px; }
+  .mt-3 { margin-top: 12px; }
+  .mb-0 { margin-bottom: 0; }
+  .text-muted { color: var(--muted); font-size: 12px; font-family: var(--mono); }
+  .truncate { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* Account card */
+  .account-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    transition: border-color 0.15s;
+  }
+  .account-card:hover { border-color: var(--accent); }
+  .account-name { font-weight: 700; font-size: 14px; }
+  .account-num { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .account-balance { font-size: 20px; font-weight: 800; color: var(--green); font-family: var(--mono); }
+  .account-currency { font-size: 10px; color: var(--muted); }
+
+  /* Spinner */
+  .spinner {
+    display: inline-block; width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">Lead<span>Max</span> Pay</div>
+    <div class="logo-sub">Payment System</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">
+      <div class="nav-label">Overview</div>
+      <div class="nav-item active" onclick="navigate('dashboard')"><span class="icon">⬡</span> Dashboard</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Auth</div>
+      <div class="nav-item" onclick="navigate('register')"><span class="icon">✦</span> Register</div>
+      <div class="nav-item" onclick="navigate('login')"><span class="icon">◈</span> Login</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Account</div>
+      <div class="nav-item" onclick="navigate('profile')"><span class="icon">◉</span> My Profile</div>
+      <div class="nav-item" onclick="navigate('users')"><span class="icon">◎</span> All Users</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Banking</div>
+      <div class="nav-item" onclick="navigate('accounts')"><span class="icon">▣</span> Bank Accounts</div>
+      <div class="nav-item" onclick="navigate('topup')"><span class="icon">⊕</span> Top Up</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Payments</div>
+      <div class="nav-item" onclick="navigate('pay')"><span class="icon">⟳</span> Send Payment</div>
+      <div class="nav-item" onclick="navigate('transactions')"><span class="icon">≡</span> Transactions</div>
+    </div>
+  </nav>
+  <div class="auth-badge">
+    <div class="label">Status</div>
+    <div id="auth-status" class="no-auth">Not logged in</div>
+  </div>
+</aside>
+
+<!-- Main -->
+<main class="main">
+
+  <!-- Dashboard -->
+  <div class="page active" id="page-dashboard">
+    <div class="page-header">
+      <div class="page-title">Dashboard</div>
+      <div class="page-subtitle">LeadMax Payment System Overview</div>
+    </div>
+    <div class="grid-3" style="margin-bottom:24px;">
+      <div class="stat-card purple">
+        <div class="stat-label">Total Users</div>
+        <div class="stat-value purple" id="stat-users">—</div>
+      </div>
+      <div class="stat-card pink">
+        <div class="stat-label">My Accounts</div>
+        <div class="stat-value pink" id="stat-accounts">—</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-label">Transactions</div>
+        <div class="stat-value green" id="stat-txns">—</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">API Endpoints</div>
+      <table>
+        <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th><th>Auth</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge badge-success">POST</span></td><td>/api/v1/users</td><td>Create user</td><td>—</td></tr>
+          <tr><td><span class="badge badge-info">GET</span></td><td>/api/v1/users</td><td>List users</td><td>🔒</td></tr>
+          <tr><td><span class="badge badge-info">GET</span></td><td>/api/v1/users/:id</td><td>Get profile</td><td>🔒</td></tr>
+          <tr><td><span class="badge" style="background:rgba(255,180,0,0.15);color:#ffb400">PUT</span></td><td>/api/v1/users/:id</td><td>Update user</td><td>🔒</td></tr>
+          <tr><td><span class="badge badge-failed">DEL</span></td><td>/api/v1/users/:id</td><td>Delete user</td><td>🔒</td></tr>
+          <tr><td><span class="badge badge-success">POST</span></td><td>/api/v1/auth/login</td><td>Login</td><td>—</td></tr>
+          <tr><td><span class="badge badge-success">POST</span></td><td>/api/v1/auth/refresh-token</td><td>Refresh token</td><td>—</td></tr>
+          <tr><td><span class="badge badge-success">POST</span></td><td>/api/v1/users/:id/bank-accounts</td><td>Add account</td><td>🔒</td></tr>
+          <tr><td><span class="badge badge-info">GET</span></td><td>/api/v1/users/:id/bank-accounts</td><td>List accounts</td><td>🔒</td></tr>
+          <tr><td><span class="badge badge-failed">DEL</span></td><td>/api/v1/users/:id/bank-accounts/:id</td><td>Delete account</td><td>🔒</td></tr>
+          <tr><td><span class="badge badge-success">POST</span></td><td>/api/v1/users/:id/bank-accounts/:id/topup</td><td>Top up balance</td><td>🔒</td></tr>
+          <tr><td><span class="badge badge-success">POST</span></td><td>/api/v1/payments</td><td>Send payment</td><td>🔒</td></tr>
+          <tr><td><span class="badge badge-info">GET</span></td><td>/api/v1/payments/user/:id</td><td>Transactions</td><td>🔒</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Register -->
+  <div class="page" id="page-register">
+    <div class="page-header">
+      <div class="page-title">Register</div>
+      <div class="page-subtitle">Create a new user account</div>
+    </div>
+    <div class="grid-2">
+      <div class="card mb-0">
+        <div class="card-title">New User</div>
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input class="form-input" id="reg-name" placeholder="Alice Smith" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" id="reg-email" type="email" placeholder="alice@example.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input class="form-input" id="reg-pass" type="password" placeholder="Min 6 characters" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone (optional)</label>
+          <input class="form-input" id="reg-phone" placeholder="+1234567890" />
+        </div>
+        <button class="btn btn-primary" onclick="registerUser()">✦ Create Account</button>
+        <div id="reg-response"></div>
+      </div>
+      <div class="card mb-0" style="background:var(--surface2);">
+        <div class="card-title">Rules</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;">
+          <li class="text-muted">◈ Email must be unique</li>
+          <li class="text-muted">◈ Password minimum 6 characters</li>
+          <li class="text-muted">◈ Phone number optional</li>
+          <li class="text-muted">◈ Each user gets up to 3 bank accounts</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Login -->
+  <div class="page" id="page-login">
+    <div class="page-header">
+      <div class="page-title">Login</div>
+      <div class="page-subtitle">Authenticate to get access + refresh tokens</div>
+    </div>
+    <div class="grid-2">
+      <div class="card mb-0">
+        <div class="card-title">Credentials</div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" id="login-email" type="email" placeholder="alice@example.com" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input class="form-input" id="login-pass" type="password" placeholder="Your password" />
+        </div>
+        <button class="btn btn-primary" onclick="loginUser()">◈ Login</button>
+        <div id="login-response"></div>
+      </div>
+      <div class="card mb-0" style="background:var(--surface2);">
+        <div class="card-title">Token Info</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;">
+          <li class="text-muted">◈ Access Token expires in <strong style="color:var(--accent)">5 minutes</strong></li>
+          <li class="text-muted">◈ Refresh Token expires in <strong style="color:var(--accent)">1 day</strong></li>
+          <li class="text-muted">◈ Use Refresh Token to get new Access Token</li>
+          <li class="text-muted">◈ Tokens auto-saved for all API calls</li>
+        </ul>
+        <hr class="divider" />
+        <button class="btn btn-ghost" style="width:100%" onclick="refreshToken()">⟳ Refresh Access Token</button>
+        <div id="refresh-response"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile -->
+  <div class="page" id="page-profile">
+    <div class="page-header">
+      <div class="page-title">My Profile</div>
+      <div class="page-subtitle">View and update your account</div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Profile Info</div>
+        <div id="profile-info" class="empty"><div class="icon">◉</div>Login to view profile</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Update Profile</div>
+        <div class="form-group">
+          <label class="form-label">Name</label>
+          <input class="form-input" id="upd-name" placeholder="New name" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone</label>
+          <input class="form-input" id="upd-phone" placeholder="New phone" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">New Password</label>
+          <input class="form-input" id="upd-pass" type="password" placeholder="Leave blank to keep current" />
+        </div>
+        <div class="flex gap-2">
+          <button class="btn btn-primary" onclick="updateProfile()">Save Changes</button>
+          <button class="btn btn-danger" onclick="deleteAccount()">Delete Account</button>
+        </div>
+        <div id="profile-response"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users -->
+  <div class="page" id="page-users">
+    <div class="page-header flex justify-between items-center">
+      <div>
+        <div class="page-title">All Users</div>
+        <div class="page-subtitle">Paginated user directory</div>
+      </div>
+      <button class="btn btn-ghost" onclick="loadUsers()">⟳ Refresh</button>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>User ID</th><th>Created</th></tr></thead>
+          <tbody id="users-table"><tr><td colspan="5" class="empty">Login to load users</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bank Accounts -->
+  <div class="page" id="page-accounts">
+    <div class="page-header">
+      <div class="page-title">Bank Accounts</div>
+      <div class="page-subtitle">Max 3 accounts per user</div>
+    </div>
+    <div class="grid-2">
+      <div>
+        <div class="card">
+          <div class="card-title">My Accounts</div>
+          <div id="accounts-list"><div class="empty"><div class="icon">▣</div>Login to view accounts</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Add Bank Account</div>
+        <div class="form-group">
+          <label class="form-label">Account Number</label>
+          <input class="form-input" id="acc-num" placeholder="ACC-12345" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bank Name</label>
+          <input class="form-input" id="acc-bank" placeholder="Chase" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Account Holder Name</label>
+          <input class="form-input" id="acc-holder" placeholder="Alice Smith" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Currency</label>
+          <select class="form-input" id="acc-currency">
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+            <option value="GBP">GBP</option>
+            <option value="INR">INR</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="addAccount()">+ Add Account</button>
+        <div id="acc-response"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Up -->
+  <div class="page" id="page-topup">
+    <div class="page-header">
+      <div class="page-title">Top Up Balance</div>
+      <div class="page-subtitle">Add funds to a bank account</div>
+    </div>
+    <div class="grid-2">
+      <div class="card mb-0">
+        <div class="card-title">Top Up</div>
+        <div class="form-group">
+          <label class="form-label">Select Account</label>
+          <select class="form-input" id="topup-account"><option value="">— Select account —</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Amount</label>
+          <input class="form-input" id="topup-amount" type="number" placeholder="500.00" min="0.01" step="0.01" />
+        </div>
+        <button class="btn btn-success" onclick="topUpBalance()">⊕ Add Funds</button>
+        <div id="topup-response"></div>
+      </div>
+      <div class="card mb-0" style="background:var(--surface2);">
+        <div class="card-title">Quick Amounts</div>
+        <div class="flex gap-2" style="flex-wrap:wrap;">
+          <button class="btn btn-ghost" onclick="setAmount(100)">$100</button>
+          <button class="btn btn-ghost" onclick="setAmount(500)">$500</button>
+          <button class="btn btn-ghost" onclick="setAmount(1000)">$1,000</button>
+          <button class="btn btn-ghost" onclick="setAmount(5000)">$5,000</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pay -->
+  <div class="page" id="page-pay">
+    <div class="page-header">
+      <div class="page-title">Send Payment</div>
+      <div class="page-subtitle">Transfer funds between accounts</div>
+    </div>
+    <div class="grid-2">
+      <div class="card mb-0">
+        <div class="card-title">Payment Details</div>
+        <div class="form-group">
+          <label class="form-label">From Account (yours)</label>
+          <select class="form-input" id="pay-sender"><option value="">— Select your account —</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">To Account ID</label>
+          <input class="form-input" id="pay-receiver" placeholder="Receiver account UUID" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Amount</label>
+          <input class="form-input" id="pay-amount" type="number" placeholder="100.00" min="0.01" step="0.01" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description (optional)</label>
+          <input class="form-input" id="pay-desc" placeholder="Rent, invoice, etc." />
+        </div>
+        <button class="btn btn-primary" onclick="doPayment()">⟳ Send Payment</button>
+        <div id="pay-response"></div>
+      </div>
+      <div class="card mb-0" style="background:var(--surface2);">
+        <div class="card-title">Payment Flow</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:12px;">
+          <li class="text-muted">✦ Validates sender owns the account</li>
+          <li class="text-muted">✦ Checks sufficient balance</li>
+          <li class="text-muted">✦ Verifies currency match</li>
+          <li class="text-muted" style="color:var(--green)">✓ SUCCESS → balances updated</li>
+          <li class="text-muted" style="color:var(--red)">✗ FAILED → transaction logged, no change</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transactions -->
+  <div class="page" id="page-transactions">
+    <div class="page-header flex justify-between items-center">
+      <div>
+        <div class="page-title">Transactions</div>
+        <div class="page-subtitle">Your payment history</div>
+      </div>
+      <div class="flex gap-2">
+        <select class="form-input" id="txn-filter" style="width:140px" onchange="loadTransactions()">
+          <option value="">All</option>
+          <option value="SUCCESS">Success</option>
+          <option value="FAILED">Failed</option>
+        </select>
+        <button class="btn btn-ghost" onclick="loadTransactions()">⟳ Refresh</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>From</th><th>To</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+          <tbody id="txn-table"><tr><td colspan="6" class="empty">Login to view transactions</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<div id="toast"></div>
+
+<script>
+const API = '';  // same origin — served by Express
+
+// State
+let state = {
+  accessToken: localStorage.getItem('accessToken') || null,
+  refreshToken: localStorage.getItem('refreshToken') || null,
+  userId: localStorage.getItem('userId') || null,
+  userName: localStorage.getItem('userName') || null,
+};
+
+// ── Navigation ─────────────────────────────────────────
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick')?.includes(page)) n.classList.add('active');
+  });
+
+  // Trigger data loads
+  if (page === 'dashboard') loadDashboard();
+  if (page === 'profile') loadProfile();
+  if (page === 'users') loadUsers();
+  if (page === 'accounts' || page === 'topup' || page === 'pay') loadAccountsData();
+  if (page === 'transactions') loadTransactions();
+}
+
+// ── HTTP Helper ────────────────────────────────────────
+async function api(method, path, body = null, useAuth = true) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (useAuth && state.accessToken) headers['Authorization'] = `Bearer ${state.accessToken}`;
+  const res = await fetch(API + path, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const data = await res.json().catch(() => ({}));
+  return { status: res.status, data };
+}
+
+// ── Auth Status ────────────────────────────────────────
+function updateAuthBadge() {
+  const el = document.getElementById('auth-status');
+  if (state.userId) {
+    el.className = 'value';
+    el.textContent = state.userName || state.userId.slice(0, 16) + '...';
+  } else {
+    el.className = 'no-auth';
+    el.textContent = 'Not logged in';
+  }
+}
+
+function saveAuth(data) {
+  state.accessToken = data.accessToken;
+  state.refreshToken = data.refreshToken;
+  state.userId = data.user?.userId;
+  state.userName = data.user?.name;
+  localStorage.setItem('accessToken', state.accessToken);
+  localStorage.setItem('refreshToken', state.refreshToken);
+  localStorage.setItem('userId', state.userId);
+  localStorage.setItem('userName', state.userName);
+  updateAuthBadge();
+}
+
+function clearAuth() {
+  state = { accessToken: null, refreshToken: null, userId: null, userName: null };
+  ['accessToken','refreshToken','userId','userName'].forEach(k => localStorage.removeItem(k));
+  updateAuthBadge();
+}
+
+// ── Toast ──────────────────────────────────────────────
+function toast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `show ${type}`;
+  setTimeout(() => t.className = '', 3000);
+}
+
+// ── Response display ───────────────────────────────────
+function showResponse(elId, data, status) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  const ok = status >= 200 && status < 300;
+  el.className = 'response-box ' + (ok ? 'success' : 'error');
+  el.textContent = JSON.stringify(data, null, 2);
+}
+
+// ── 1. User APIs ───────────────────────────────────────
+async function registerUser() {
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-pass').value;
+  const phone = document.getElementById('reg-phone').value.trim();
+  const body = { name, email, password };
+  if (phone) body.phone = phone;
+  const { status, data } = await api('POST', '/api/v1/users', body, false);
+  showResponse('reg-response', data, status);
+  if (status === 201) toast('Account created! You can now login.');
+  else toast(data.message || 'Registration failed', 'error');
+}
+
+async function loadProfile() {
+  if (!state.userId) return;
+  const { status, data } = await api('GET', `/api/v1/users/${state.userId}`);
+  const el = document.getElementById('profile-info');
+  if (status === 200) {
+    const u = data.data;
+    el.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div><div class="text-muted">Name</div><div style="font-size:18px;font-weight:700;margin-top:2px;">${u.name}</div></div>
+        <div><div class="text-muted">Email</div><div style="font-family:var(--mono);margin-top:2px;">${u.email}</div></div>
+        <div><div class="text-muted">Phone</div><div style="font-family:var(--mono);margin-top:2px;">${u.phone || '—'}</div></div>
+        <div><div class="text-muted">User ID</div><div style="font-family:var(--mono);font-size:11px;margin-top:2px;color:var(--accent)">${u.userId}</div></div>
+        <div><div class="text-muted">Member since</div><div style="font-family:var(--mono);font-size:11px;margin-top:2px;">${new Date(u.createdAt).toLocaleString()}</div></div>
+      </div>`;
+  }
+}
+
+async function updateProfile() {
+  if (!state.userId) return toast('Login first', 'error');
+  const body = {};
+  const name = document.getElementById('upd-name').value.trim();
+  const phone = document.getElementById('upd-phone').value.trim();
+  const pass = document.getElementById('upd-pass').value;
+  if (name) body.name = name;
+  if (phone) body.phone = phone;
+  if (pass) body.password = pass;
+  const { status, data } = await api('PUT', `/api/v1/users/${state.userId}`, body);
+  showResponse('profile-response', data, status);
+  if (status === 200) { toast('Profile updated!'); loadProfile(); }
+  else toast(data.message || 'Update failed', 'error');
+}
+
+async function deleteAccount() {
+  if (!state.userId) return toast('Login first', 'error');
+  if (!confirm('Delete your account permanently?')) return;
+  const { status, data } = await api('DELETE', `/api/v1/users/${state.userId}`);
+  showResponse('profile-response', data, status);
+  if (status === 200) { toast('Account deleted'); clearAuth(); navigate('register'); }
+  else toast(data.message, 'error');
+}
+
+async function loadUsers() {
+  if (!state.accessToken) return;
+  const { status, data } = await api('GET', '/api/v1/users?limit=50');
+  const tbody = document.getElementById('users-table');
+  if (status === 200) {
+    const users = data.data.users;
+    if (!users.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">No users found</td></tr>'; return; }
+    tbody.innerHTML = users.map(u => `
+      <tr>
+        <td><strong>${u.name}</strong></td>
+        <td>${u.email}</td>
+        <td>${u.phone || '—'}</td>
+        <td class="truncate" style="max-width:100px;color:var(--accent);cursor:pointer" title="${u.userId}" onclick="copyText('${u.userId}')">${u.userId.slice(0,8)}…</td>
+        <td>${new Date(u.createdAt).toLocaleDateString()}</td>
+      </tr>`).join('');
+    document.getElementById('stat-users').textContent = data.data.pagination.total;
+  }
+}
+
+// ── 2. Auth APIs ───────────────────────────────────────
+async function loginUser() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-pass').value;
+  const { status, data } = await api('POST', '/api/v1/auth/login', { email, password }, false);
+  showResponse('login-response', data, status);
+  if (status === 200) { saveAuth(data.data); toast(`Welcome back, ${data.data.user.name}!`); }
+  else toast(data.message || 'Login failed', 'error');
+}
+
+async function refreshToken() {
+  if (!state.refreshToken) return toast('No refresh token found', 'error');
+  const { status, data } = await api('POST', '/api/v1/auth/refresh-token', { refreshToken: state.refreshToken }, false);
+  showResponse('refresh-response', data, status);
+  if (status === 200) {
+    state.accessToken = data.data.accessToken;
+    localStorage.setItem('accessToken', state.accessToken);
+    toast('Access token refreshed!');
+  } else toast(data.message, 'error');
+}
+
+// ── 3. Bank Account APIs ───────────────────────────────
+async function loadAccountsData() {
+  if (!state.userId) return;
+  const { status, data } = await api('GET', `/api/v1/users/${state.userId}/bank-accounts`);
+  if (status !== 200) return;
+  const accounts = data.data.accounts;
+
+  // Render accounts list
+  const el = document.getElementById('accounts-list');
+  if (!accounts.length) {
+    el.innerHTML = '<div class="empty"><div class="icon">▣</div>No accounts yet</div>';
+  } else {
+    el.innerHTML = accounts.map(a => `
+      <div class="account-card">
+        <div>
+          <div class="account-name">${a.bankName}</div>
+          <div class="account-num">${a.accountNumber} · ${a.accountHolderName}</div>
+          <div class="account-num" style="color:var(--accent);cursor:pointer;margin-top:4px" onclick="copyText('${a.accountId}')" title="${a.accountId}">ID: ${a.accountId.slice(0,12)}… (click to copy)</div>
+        </div>
+        <div style="text-align:right">
+          <div class="account-balance">${a.balance.toFixed(2)}</div>
+          <div class="account-currency">${a.currency}</div>
+          <button class="btn btn-danger" style="margin-top:8px;padding:5px 10px;font-size:11px" onclick="deleteAccountById('${a.accountId}')">Delete</button>
+        </div>
+      </div>`).join('');
+  }
+
+  // Populate selects
+  const options = '<option value="">— Select account —</option>' +
+    accounts.map(a => `<option value="${a.accountId}">${a.bankName} · ${a.accountNumber} · $${a.balance.toFixed(2)}</option>`).join('');
+  document.getElementById('topup-account').innerHTML = options;
+  document.getElementById('pay-sender').innerHTML = options;
+
+  document.getElementById('stat-accounts').textContent = accounts.length;
+}
+
+async function addAccount() {
+  if (!state.userId) return toast('Login first', 'error');
+  const body = {
+    accountNumber: document.getElementById('acc-num').value.trim(),
+    bankName: document.getElementById('acc-bank').value.trim(),
+    accountHolderName: document.getElementById('acc-holder').value.trim(),
+    currency: document.getElementById('acc-currency').value,
+  };
+  const { status, data } = await api('POST', `/api/v1/users/${state.userId}/bank-accounts`, body);
+  showResponse('acc-response', data, status);
+  if (status === 201) { toast('Bank account added!'); loadAccountsData(); }
+  else toast(data.message || 'Failed to add account', 'error');
+}
+
+async function deleteAccountById(accountId) {
+  if (!confirm('Delete this bank account?')) return;
+  const { status, data } = await api('DELETE', `/api/v1/users/${state.userId}/bank-accounts/${accountId}`);
+  if (status === 200) { toast('Account deleted'); loadAccountsData(); }
+  else toast(data.message, 'error');
+}
+
+async function topUpBalance() {
+  const accountId = document.getElementById('topup-account').value;
+  const amount = parseFloat(document.getElementById('topup-amount').value);
+  if (!accountId) return toast('Select an account', 'error');
+  if (!amount || amount <= 0) return toast('Enter a valid amount', 'error');
+  const { status, data } = await api('POST', `/api/v1/users/${state.userId}/bank-accounts/${accountId}/topup`, { amount });
+  showResponse('topup-response', data, status);
+  if (status === 200) { toast(`Topped up $${amount}!`); loadAccountsData(); }
+  else toast(data.message || 'Top-up failed', 'error');
+}
+
+function setAmount(val) { document.getElementById('topup-amount').value = val; }
+
+// ── 4. Payment APIs ────────────────────────────────────
+async function doPayment() {
+  const senderAccountId = document.getElementById('pay-sender').value;
+  const receiverAccountId = document.getElementById('pay-receiver').value.trim();
+  const amount = parseFloat(document.getElementById('pay-amount').value);
+  const description = document.getElementById('pay-desc').value.trim();
+  if (!senderAccountId) return toast('Select sender account', 'error');
+  if (!receiverAccountId) return toast('Enter receiver account ID', 'error');
+  if (!amount || amount <= 0) return toast('Enter valid amount', 'error');
+  const body = { senderAccountId, receiverAccountId, amount };
+  if (description) body.description = description;
+  const { status, data } = await api('POST', '/api/v1/payments', body);
+  showResponse('pay-response', data, status);
+  if (status === 200) { toast('Payment sent successfully!'); loadAccountsData(); }
+  else toast(data.message || 'Payment failed', 'error');
+}
+
+async function loadTransactions() {
+  if (!state.userId) return;
+  const filter = document.getElementById('txn-filter')?.value || '';
+  const url = `/api/v1/payments/user/${state.userId}?limit=50${filter ? '&status=' + filter : ''}`;
+  const { status, data } = await api('GET', url);
+  const tbody = document.getElementById('txn-table');
+  if (status === 200) {
+    const txns = data.data.transactions;
+    document.getElementById('stat-txns').textContent = data.data.pagination.total;
+    if (!txns.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">No transactions found</td></tr>'; return; }
+    tbody.innerHTML = txns.map(t => `
+      <tr>
+        <td class="truncate" style="color:var(--accent);cursor:pointer" title="${t.transactionId}" onclick="copyText('${t.transactionId}')">${t.transactionId.slice(0,8)}…</td>
+        <td class="truncate" title="${t.senderAccountId}">${t.senderAccountId.slice(0,8)}…</td>
+        <td class="truncate" title="${t.receiverAccountId}">${t.receiverAccountId.slice(0,8)}…</td>
+        <td style="color:var(--green);font-weight:700">${t.amount} ${t.currency || ''}</td>
+        <td><span class="badge badge-${t.status === 'SUCCESS' ? 'success' : 'failed'}">${t.status}</span></td>
+        <td>${new Date(t.createdAt).toLocaleString()}</td>
+      </tr>`).join('');
+  }
+}
+
+// ── Dashboard ──────────────────────────────────────────
+async function loadDashboard() {
+  if (state.accessToken) {
+    loadUsers();
+    if (state.userId) { loadAccountsData(); loadTransactions(); }
+  }
+}
+
+// ── Utility ────────────────────────────────────────────
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => toast('Copied to clipboard!'));
+}
+
+// ── Init ───────────────────────────────────────────────
+updateAuthBadge();
+loadDashboard();
+</script>
+</body>
+</html>
